@@ -5,7 +5,7 @@ const Roles = require('../config/Roles');
 const Permissions = require('../config/Permissions');
 const dotenv = require('dotenv');
 dotenv.config();
-
+ 
 const seedRolesAndPermissions = async () => {
   try {
     dbconnect();
