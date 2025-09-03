@@ -1,0 +1,120 @@
+@baseUrl = http://localhost:6969
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGI3OGQ5YjVhNGU0NGYzOTkzYjZjMDMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJyb2xlIjoibWVtYmVyIiwiaWF0IjoxNzU2ODU5ODk2LCJleHAiOjE3NTY5NDYyOTZ9.iCX-i85--rhsHc8QfeuNWJB4-on29M4QvoTUnkvbOrs
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGI3OGQ5YjVhNGU0NGYzOTkzYjZjMDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU2ODU5ODk2LCJleHAiOjE3NTY5NDYyOTZ9.iCX-i85--rhsHc8QfeuNWJB4-on29M4QvoTUnkvbOrs
+
+### Cast a vote for president election
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID"
+}
+
+### Cast a vote for board election (yes)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID",
+	"boardChoice": "yes"
+}
+
+### Cast a vote for board election (no)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID",
+	"boardChoice": "no"
+}
+
+### Get president election results
+GET {{baseUrl}}/api/votes/results/president
+
+### Get board election results
+GET {{baseUrl}}/api/votes/results/board
+
+### Get election results by type
+GET {{baseUrl}}/api/votes/results/REPLACE_WITH_ELECTION_TYPE
+
+### Get all votes (admin only)
+GET {{baseUrl}}/api/votes
+Authorization: Bearer {{adminToken}}
+
+### Get all votes with filters (admin only)
+GET {{baseUrl}}/api/votes?electionType=president&candidateId=REPLACE_WITH_CANDIDATE_ID
+Authorization: Bearer {{adminToken}}
+
+### Get user's own votes
+GET {{baseUrl}}/api/votes/my-votes
+Authorization: Bearer {{accessToken}}
+
+### Get user's votes by election type
+GET {{baseUrl}}/api/votes/my-votes?electionType=president
+Authorization: Bearer {{accessToken}}
+
+### Test voting without authentication
+POST {{baseUrl}}/api/votes
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID"
+}
+
+### Test voting with invalid candidate
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "invalid_candidate_id"
+}
+
+### Test voting for inactive election
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID"
+}
+
+### Test duplicate voting (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID"
+}
+
+### Test board voting without boardChoice
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID"
+}
+
+### Test board voting with invalid boardChoice
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_CANDIDATE_ID",
+	"boardChoice": "maybe"
+}

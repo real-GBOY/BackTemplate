@@ -1,0 +1,132 @@
+@baseUrl = http://localhost:6969
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGI3OGQ5YjVhNGU0NGYzOTkzYjZjMDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU2ODU5ODk2LCJleHAiOjE3NTY5NDYyOTZ9.iCX-i85--rhsHc8QfeuNWJB4-on29M4QvoTUnkvbOrs
+
+### Create president election
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "2024 President Election",
+	"description": "Annual president election for the organization",
+	"startDate": "2024-01-01T00:00:00.000Z",
+	"endDate": "2024-01-31T23:59:59.000Z"
+}
+
+### Create board election
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"title": "2024 Board Election",
+	"description": "Annual board member election",
+	"startDate": "2024-02-01T00:00:00.000Z",
+	"endDate": "2024-02-28T23:59:59.000Z"
+}
+
+### Create immediate election (starts now)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Immediate President Election",
+	"description": "Emergency president election",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### Get all elections
+GET {{baseUrl}}/api/elections
+
+### Get elections by status
+GET {{baseUrl}}/api/elections?status=active
+
+### Get elections by type
+GET {{baseUrl}}/api/elections?electionType=president
+
+### Get active elections
+GET {{baseUrl}}/api/elections/active
+
+### Get election by ID
+GET {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID
+
+### Update election
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"title": "Updated Election Title",
+	"description": "Updated description",
+	"endDate": "2024-02-15T23:59:59.000Z"
+}
+
+### Start election
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+### Close election
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+### Delete election (draft only)
+DELETE {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID
+Authorization: Bearer {{adminToken}}
+
+### Test creating election without authentication
+POST {{baseUrl}}/api/elections
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Unauthorized Election",
+	"startDate": "2024-01-01T00:00:00.000Z",
+	"endDate": "2024-01-31T23:59:59.000Z"
+}
+
+### Test creating election with invalid dates
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Invalid Date Election",
+	"startDate": "2024-01-31T23:59:59.000Z",
+	"endDate": "2024-01-01T00:00:00.000Z"
+}
+
+### Test creating election with missing fields
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"title": "Incomplete Election"
+}
+
+### Test updating closed election
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"title": "Trying to update closed election"
+}
+
+### Test deleting active election
+DELETE {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID
+Authorization: Bearer {{adminToken}}
+
+### Test starting already active election
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+### Test closing already closed election
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}

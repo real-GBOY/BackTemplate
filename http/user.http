@@ -1,0 +1,33 @@
+@baseUrl = http://localhost:6969
+@userId = 68b6e6014a0adbed32804f4f
+
+### Create user
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+	"email": "user1@example.com",
+	"password": "plainpass",
+	"role": "member",
+	"isVerified": false
+}
+
+### List users
+GET {{baseUrl}}/api/users
+
+### Get user by id
+GET {{baseUrl}}/api/users/{{userId}}
+
+### Update user (PATCH)
+PATCH {{baseUrl}}/api/users/{{userId}}
+Content-Type: application/json
+
+{
+	"password": "newplainpass",
+	"isVerified": false
+}
+
+### Delete user
+DELETE {{baseUrl}}/api/users/{{userId}}
+
+

@@ -1,0 +1,139 @@
+@baseUrl = http://localhost:6969
+@accessToken = REPLACE_WITH_ACCESS_TOKEN
+@refreshToken = REPLACE_WITH_REFRESH_TOKEN
+
+### Signup/Register new user (no token generated)
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+	"email": "newuser@example.com",
+	"password": "plainpass123",
+	"role": "member"
+}
+
+### Signup with admin role (no token generated)
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+	"email": "admin@example.com",
+	"password": "adminpass123",
+	"role": "admin"
+}
+
+### Login user (will fail - user not verified)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "newuser@example.com",
+	"password": "plainpass123"
+}
+
+### Login admin (will fail - admin not verified)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "admin@example.com",
+	"password": "adminpass123"
+}
+
+### Get current user profile (requires access token)
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer {{accessToken}}
+
+### Refresh token (requires refresh token in body)
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+	"refreshToken": "{{refreshToken}}"
+}
+
+### Logout (requires access token)
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### Get unverified users (admin only)
+GET {{baseUrl}}/api/auth/unverified
+Authorization: Bearer {{accessToken}}
+
+### Verify user (admin only)
+PATCH {{baseUrl}}/api/auth/verify/REPLACE_WITH_USER_ID
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"isVerified": true
+}
+
+### Unverify user (admin only)
+PATCH {{baseUrl}}/api/auth/verify/REPLACE_WITH_USER_ID
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+	"isVerified": false
+}
+
+### Test invalid signup (duplicate email)
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+	"email": "newuser@example.com",
+	"password": "differentpass",
+	"role": "member"
+}
+
+### Test invalid login (wrong email)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "wrong@example.com",
+	"password": "plainpass123"
+}
+
+### Test invalid login (wrong password)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "newuser@example.com",
+	"password": "wrongpass"
+}
+
+### Test login after verification (should work)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "newuser@example.com",
+	"password": "plainpass123"
+}
+
+### Test protected route without token
+GET {{baseUrl}}/api/auth/profile
+
+### Test protected route with invalid token
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer invalid_token_here
+
+### Test signup with missing fields
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+	"email": "incomplete@example.com"
+}
+
+### Test login with missing fields
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "incomplete@example.com"
+}

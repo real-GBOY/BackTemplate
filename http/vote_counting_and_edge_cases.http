@@ -1,0 +1,315 @@
+@baseUrl = http://localhost:6969
+@adminToken = REPLACE_WITH_ADMIN_TOKEN
+@memberToken = REPLACE_WITH_MEMBER_TOKEN
+@unverifiedToken = REPLACE_WITH_UNVERIFIED_TOKEN
+
+### ============================================
+### VOTE COUNTING AND EDGE CASE TESTING
+### ============================================
+
+### 1. Create President Election (Admin)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "2024 President Election - Vote Counting Test",
+	"description": "Testing vote counting and edge cases",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### 2. Create Board Election (Admin)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"title": "2024 Board Election - Vote Counting Test",
+	"description": "Testing board vote counting and edge cases",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### 3. Start Both Elections (Admin)
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_PRESIDENT_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_BOARD_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+### 4. Create President Candidates
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID_1",
+	"electionId": "REPLACE_WITH_PRESIDENT_ELECTION_ID",
+	"candidateType": "president",
+	"name": "John Doe"
+}
+
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID_2",
+	"electionId": "REPLACE_WITH_PRESIDENT_ELECTION_ID",
+	"candidateType": "president",
+	"name": "Jane Smith"
+}
+
+### 5. Create Board Candidates
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID_3",
+	"electionId": "REPLACE_WITH_BOARD_ELECTION_ID",
+	"candidateType": "board",
+	"name": "Bob Johnson"
+}
+
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID_4",
+	"electionId": "REPLACE_WITH_BOARD_ELECTION_ID",
+	"candidateType": "board",
+	"name": "Alice Brown"
+}
+
+### ============================================
+### VOTE COUNTING TESTS
+### ============================================
+
+### 6. Cast President Votes (Multiple Members)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_1_ID"
+}
+
+### 7. Cast Board Votes (Multiple Members)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID",
+	"boardChoice": "yes"
+}
+
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID",
+	"boardChoice": "no"
+}
+
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_2_ID",
+	"boardChoice": "yes"
+}
+
+### 8. Test Vote Counting - President Results
+GET {{baseUrl}}/api/votes/results/president
+
+### 9. Test Vote Counting - Board Results
+GET {{baseUrl}}/api/votes/results/board
+
+### ============================================
+### EDGE CASE TESTING
+### ============================================
+
+### 10. Test Voting Outside Active Period (Should Fail)
+# First, create an election that's already ended
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Past Election",
+	"description": "This election has already ended",
+	"startDate": "2024-01-01T00:00:00.000Z",
+	"endDate": "2024-01-02T23:59:59.000Z"
+}
+
+# Try to vote in past election (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PAST_ELECTION_CANDIDATE_ID"
+}
+
+### 11. Test Voting for Inactive Candidate (Should Fail)
+# First, create a candidate and then deactivate them
+PATCH {{baseUrl}}/api/candidates/REPLACE_WITH_CANDIDATE_ID
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"status": "withdrawn"
+}
+
+# Try to vote for inactive candidate (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_INACTIVE_CANDIDATE_ID"
+}
+
+### 12. Test Duplicate Voting (Should Fail)
+# Try to vote twice for same candidate (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_1_ID"
+}
+
+### 13. Test Voting Without Authentication (Should Fail)
+POST {{baseUrl}}/api/votes
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_1_ID"
+}
+
+### 14. Test Voting with Unverified User (Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{unverifiedToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_1_ID"
+}
+
+### 15. Test Invalid Election Type (Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "invalid",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_1_ID"
+}
+
+### 16. Test Missing Required Fields (Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president"
+}
+
+### 17. Test Board Vote Without Choice (Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID"
+}
+
+### 18. Test Board Vote with Invalid Choice (Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID",
+	"boardChoice": "maybe"
+}
+
+### ============================================
+### ELECTION CONFLICT TESTING
+### ============================================
+
+### 19. Test Overlapping Elections (Should Fail)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Overlapping Election",
+	"description": "This should conflict with existing election",
+	"startDate": "2024-01-16T00:00:00.000Z",
+	"endDate": "2024-01-22T23:59:59.000Z"
+}
+
+### 20. Test Election with End Date Before Start Date (Should Fail)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Invalid Date Election",
+	"description": "End date before start date",
+	"startDate": "2024-01-20T00:00:00.000Z",
+	"endDate": "2024-01-15T23:59:59.000Z"
+}
+
+### ============================================
+### FINAL RESULTS VERIFICATION
+### ============================================
+
+### 21. Final President Results Check
+GET {{baseUrl}}/api/votes/results/president
+
+### 22. Final Board Results Check
+GET {{baseUrl}}/api/votes/results/board
+
+### 23. Get All Votes (Admin Only)
+GET {{baseUrl}}/api/votes
+Authorization: Bearer {{adminToken}}
+
+### 24. Get User's Votes
+GET {{baseUrl}}/api/votes/my-votes
+Authorization: Bearer {{memberToken}}
+
+### 25. Close Elections
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_PRESIDENT_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_BOARD_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+### 26. Final Results After Closing
+GET {{baseUrl}}/api/votes/results/president
+GET {{baseUrl}}/api/votes/results/board

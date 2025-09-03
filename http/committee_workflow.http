@@ -1,0 +1,334 @@
+@baseUrl = http://localhost:6969
+@adminToken = REPLACE_WITH_ADMIN_TOKEN
+@memberToken = REPLACE_WITH_MEMBER_TOKEN
+@user1Token = REPLACE_WITH_USER1_TOKEN
+@user2Token = REPLACE_WITH_USER2_TOKEN
+
+### ============================================
+### COMPLETE COMMITTEE WORKFLOW TEST
+### ============================================
+
+### 1. Create Committee (Admin)
+POST {{baseUrl}}/api/committees
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"name": "Technology Committee",
+	"description": "Responsible for technology decisions and implementations",
+	"members": []
+}
+
+### 2. Create Another Committee (Admin)
+POST {{baseUrl}}/api/committees
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"name": "Finance Committee",
+	"description": "Responsible for financial oversight and budgeting",
+	"members": []
+}
+
+### 3. Get All Committees
+GET {{baseUrl}}/api/committees
+
+### 4. Get Committee by ID
+GET {{baseUrl}}/api/committees/REPLACE_WITH_COMMITTEE_ID
+
+### 5. Add Members to Technology Committee (Admin)
+POST {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID/members
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER1_ID"
+}
+
+POST {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID/members
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER2_ID"
+}
+
+### 6. Add Members to Finance Committee (Admin)
+POST {{baseUrl}}/api/committees/REPLACE_WITH_FINANCE_COMMITTEE_ID/members
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER3_ID"
+}
+
+### 7. Get Committee Members
+GET {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID/members
+
+### 8. Get User's Committees
+GET {{baseUrl}}/api/committees/user/my-committees
+Authorization: Bearer {{user1Token}}
+
+### ============================================
+### COMMITTEE-BASED ELECTIONS
+### ============================================
+
+### 9. Create Board Election for Technology Committee (Admin)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"title": "2024 Technology Committee Board Election",
+	"description": "Election for Technology Committee board members",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z",
+	"committeeId": "REPLACE_WITH_TECH_COMMITTEE_ID"
+}
+
+### 10. Create President Election (Global) (Admin)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "2024 President Election",
+	"description": "Global president election",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### 11. Start Both Elections (Admin)
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_BOARD_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_PRESIDENT_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+### ============================================
+### COMMITTEE-BASED CANDIDATES
+### ============================================
+
+### 12. Create Board Candidate (Technology Committee Member)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{user1Token}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER1_ID",
+	"electionId": "REPLACE_WITH_BOARD_ELECTION_ID",
+	"candidateType": "board",
+	"name": "John Doe - Tech Lead",
+	"committeeId": "REPLACE_WITH_TECH_COMMITTEE_ID"
+}
+
+### 13. Create Another Board Candidate (Technology Committee Member)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{user2Token}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER2_ID",
+	"electionId": "REPLACE_WITH_BOARD_ELECTION_ID",
+	"candidateType": "board",
+	"name": "Jane Smith - Senior Developer",
+	"committeeId": "REPLACE_WITH_TECH_COMMITTEE_ID"
+}
+
+### 14. Create President Candidate (Global)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{user1Token}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER1_ID",
+	"electionId": "REPLACE_WITH_PRESIDENT_ELECTION_ID",
+	"candidateType": "president",
+	"name": "John Doe - President"
+}
+
+### ============================================
+### COMMITTEE-BASED VOTING
+### ============================================
+
+### 15. Cast Board Vote (Technology Committee Member)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{user1Token}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID",
+	"boardChoice": "yes"
+}
+
+### 16. Cast Board Vote (Another Technology Committee Member)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{user2Token}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID",
+	"boardChoice": "no"
+}
+
+### 17. Cast President Vote (Any Verified User)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{user1Token}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_ID"
+}
+
+### ============================================
+### COMMITTEE VOTING RESTRICTIONS
+### ============================================
+
+### 18. Try to Vote in Board Election (Non-Committee Member - Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{user3Token}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_1_ID",
+	"boardChoice": "yes"
+}
+
+### 19. Try to Create Board Candidate (Non-Committee Member - Should Fail)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{user3Token}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER3_ID",
+	"electionId": "REPLACE_WITH_BOARD_ELECTION_ID",
+	"candidateType": "board",
+	"name": "Bob Johnson - Finance Member",
+	"committeeId": "REPLACE_WITH_TECH_COMMITTEE_ID"
+}
+
+### ============================================
+### COMMITTEE MANAGEMENT
+### ============================================
+
+### 20. Update Committee
+PATCH {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"description": "Updated description for Technology Committee"
+}
+
+### 21. Remove Member from Committee (Admin)
+DELETE {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID/members
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER2_ID"
+}
+
+### 22. Try to Vote After Removal (Should Fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{user2Token}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_2_ID",
+	"boardChoice": "yes"
+}
+
+### ============================================
+### RESULTS AND VERIFICATION
+### ============================================
+
+### 23. Get Board Election Results
+GET {{baseUrl}}/api/votes/results/board
+
+### 24. Get President Election Results
+GET {{baseUrl}}/api/votes/results/president
+
+### 25. Get All Votes (Admin)
+GET {{baseUrl}}/api/votes
+Authorization: Bearer {{adminToken}}
+
+### 26. Get User's Votes
+GET {{baseUrl}}/api/votes/my-votes
+Authorization: Bearer {{user1Token}}
+
+### ============================================
+### COMMITTEE DELETION (Should Fail with Active Elections)
+### ============================================
+
+### 27. Try to Delete Committee with Active Elections (Should Fail)
+DELETE {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID
+Authorization: Bearer {{adminToken}}
+
+### 28. Close Elections First
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_BOARD_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_PRESIDENT_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+### 29. Now Delete Committee (Should Succeed)
+DELETE {{baseUrl}}/api/committees/REPLACE_WITH_TECH_COMMITTEE_ID
+Authorization: Bearer {{adminToken}}
+
+### ============================================
+### ERROR SCENARIOS
+### ============================================
+
+### 30. Try to Create Committee with Duplicate Name (Should Fail)
+POST {{baseUrl}}/api/committees
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"name": "Technology Committee",
+	"description": "Duplicate committee name"
+}
+
+### 31. Try to Add User to Multiple Committees (Should Fail)
+POST {{baseUrl}}/api/committees/REPLACE_WITH_FINANCE_COMMITTEE_ID/members
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER1_ID"
+}
+
+### 32. Try to Create Board Election Without Committee (Should Fail)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"title": "Invalid Board Election",
+	"description": "Missing committee",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### 33. Try to Create President Election With Committee (Should Fail)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "Invalid President Election",
+	"description": "Should not have committee",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z",
+	"committeeId": "REPLACE_WITH_FINANCE_COMMITTEE_ID"
+}

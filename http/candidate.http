@@ -1,0 +1,48 @@
+@baseUrl = http://localhost:6969
+@candidateId = REPLACE_WITH_CANDIDATE_ID
+@token = REPLACE_WITH_JWT_TOKEN
+
+### Create candidate (requires authentication)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID",
+	"candidateType": "board",
+	"name": "Jane Doe"
+}
+
+### List candidates
+GET {{baseUrl}}/api/candidates
+
+### Get candidate by id
+GET {{baseUrl}}/api/candidates/{{candidateId}}
+
+### Update candidate (PATCH) - Admin only
+PATCH {{baseUrl}}/api/candidates/{{candidateId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"status": "withdrawn"
+}
+
+### Replace candidate (PUT) - Admin only
+PUT {{baseUrl}}/api/candidates/{{candidateId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID",
+	"candidateType": "president",
+	"name": "Jane Doe",
+	"status": "active"
+}
+
+### Delete candidate - Admin only
+DELETE {{baseUrl}}/api/candidates/{{candidateId}}
+Authorization: Bearer {{token}}
+
+
+

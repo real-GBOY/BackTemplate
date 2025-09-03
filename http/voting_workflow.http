@@ -1,0 +1,164 @@
+@baseUrl = http://localhost:6969
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGI3OGQ5YjVhNGU0NGYzOTkzYjZjMDMiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU2ODU5ODk2LCJleHAiOjE3NTY5NDYyOTZ9.iCX-i85--rhsHc8QfeuNWJB4-on29M4QvoTUnkvbOrs
+@memberToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGI3OGQ5YjVhNGU0NGYzOTkzYjZjMDMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJyb2xlIjoibWVtYmVyIiwiaWF0IjoxNzU2ODU5ODk2LCJleHAiOjE3NTY5NDYyOTZ9.iCX-i85--rhsHc8QfeuNWJB4-on29M4QvoTUnkvbOrs
+
+### ============================================
+### COMPLETE VOTING WORKFLOW TEST
+### ============================================
+
+### Step 1: Create President Election (Admin)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"title": "2024 President Election",
+	"description": "Annual president election for the organization",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### Step 2: Create Board Election (Admin)
+POST {{baseUrl}}/api/elections
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"title": "2024 Board Election",
+	"description": "Annual board member election",
+	"startDate": "2024-01-15T00:00:00.000Z",
+	"endDate": "2024-01-20T23:59:59.000Z"
+}
+
+### Step 3: Start President Election (Admin)
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_PRESIDENT_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+### Step 4: Start Board Election (Admin)
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_BOARD_ELECTION_ID/start
+Authorization: Bearer {{adminToken}}
+
+### Step 5: Create President Candidate (Member)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_USER_ID",
+	"candidateType": "president",
+	"name": "John Doe"
+}
+
+### Step 6: Create Board Candidate (Member)
+POST {{baseUrl}}/api/candidates
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"userId": "REPLACE_WITH_ANOTHER_USER_ID",
+	"candidateType": "board",
+	"name": "Jane Smith"
+}
+
+### Step 7: Cast President Vote (Member)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_ID"
+}
+
+### Step 8: Cast Board Vote - Yes (Member)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_ID",
+	"boardChoice": "yes"
+}
+
+### Step 9: Check President Results
+GET {{baseUrl}}/api/votes/results/president
+
+### Step 10: Check Board Results
+GET {{baseUrl}}/api/votes/results/board
+
+### Step 11: Check User's Votes
+GET {{baseUrl}}/api/votes/my-votes
+Authorization: Bearer {{memberToken}}
+
+### Step 12: Check All Votes (Admin)
+GET {{baseUrl}}/api/votes
+Authorization: Bearer {{adminToken}}
+
+### Step 13: Close President Election (Admin)
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_PRESIDENT_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+### Step 14: Close Board Election (Admin)
+PATCH {{baseUrl}}/api/elections/REPLACE_WITH_BOARD_ELECTION_ID/close
+Authorization: Bearer {{adminToken}}
+
+### Step 15: Final Results Check
+GET {{baseUrl}}/api/votes/results/president
+GET {{baseUrl}}/api/votes/results/board
+
+### ============================================
+### ERROR SCENARIOS TEST
+### ============================================
+
+### Try to vote in closed election (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_ID"
+}
+
+### Try to vote for inactive candidate (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_INACTIVE_CANDIDATE_ID"
+}
+
+### Try duplicate voting (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{memberToken}}
+Content-Type: application/json
+
+{
+	"electionType": "board",
+	"candidateId": "REPLACE_WITH_BOARD_CANDIDATE_ID",
+	"boardChoice": "no"
+}
+
+### Try voting without authentication (should fail)
+POST {{baseUrl}}/api/votes
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_ID"
+}
+
+### Try voting with unverified user (should fail)
+POST {{baseUrl}}/api/votes
+Authorization: Bearer {{unverifiedUserToken}}
+Content-Type: application/json
+
+{
+	"electionType": "president",
+	"candidateId": "REPLACE_WITH_PRESIDENT_CANDIDATE_ID"
+}
